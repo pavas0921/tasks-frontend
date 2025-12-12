@@ -9,26 +9,40 @@ import {
   MenuItem
 } from "@mui/material";
 
-const EditTaskModal = ({ open, onClose, task, onSave, onUpdateTask }) => {
+const EditTaskModal = ({ open, onClose, task, onAdd, onUpdateTask, formMode }) => {
   const [editedTask, setEditedTask] = useState(task || {});
 
   useEffect(() => {
-    setEditedTask(task || {});
-  }, [task]);
+    formMode === "edit" ? setEditedTask(task || {}) : setEditedTask({
+      title: "",
+      description: "",
+      status: "pendiente",
+    });
+  }, [task, formMode]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditedTask(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = () => {
+  const handleUpdate = () => {
     onUpdateTask(editedTask);
     onClose();
   };
 
+ const handleAdd = () => {
+  const taskToSend = {
+    ...editedTask,
+    status: editedTask.status || "pendiente", // respaldo por si acaso
+  };
+  console.log("Datos que se enviarán:", taskToSend);
+  onAdd(taskToSend);
+  onClose();
+};
+
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Editar tarea</DialogTitle>
+      <DialogTitle>{formMode === "edit" ? "Editar Tarea" : "Agregar Tarea"}</DialogTitle>
       <DialogContent>
         <TextField
           margin="dense"
@@ -58,12 +72,14 @@ const EditTaskModal = ({ open, onClose, task, onSave, onUpdateTask }) => {
           onChange={handleChange}
         >
           <MenuItem value="pendiente">Pendiente</MenuItem>
-          <MenuItem value="completed">Completada</MenuItem>
+          <MenuItem value="completada">Completada</MenuItem>
         </TextField>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancelar</Button>
-        <Button variant="contained" onClick={handleSave}>Guardar</Button>
+        <Button variant="contained" onClick={formMode === "edit" ? handleUpdate : handleAdd}>
+          {formMode === "edit" ? "Guardar Cambios" : "Agregar Tarea"}
+          </Button>
       </DialogActions>
     </Dialog>
   );

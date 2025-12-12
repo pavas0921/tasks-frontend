@@ -9,11 +9,11 @@ const Home = () => {
   tasks, 
   loading, 
   error,
-   handleEdit, 
-   handleDelete, 
-   handleToggleStatus,
-  handleUpdateTask,
-  handleAddTask
+    handleEdit, 
+    handleDelete, 
+    handleToggleStatus,
+    handleUpdateTask,
+    handleAddTask
    } = useTasks();
 
   if (loading) return <p>Cargando tareas...</p>;
@@ -32,6 +32,7 @@ return (
         onDelete={handleDelete}
         onToggleStatus={handleToggleStatus}
         onUpdateTask={handleUpdateTask}
+        onAdd={handleAddTask}
       />
     </Container>
   );

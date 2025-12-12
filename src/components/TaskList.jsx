@@ -1,27 +1,27 @@
 import React, { useState } from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  IconButton, Paper, Chip, Tooltip, Fab
+  IconButton, Paper, Chip, Tooltip
 } from '@mui/material';
 
-import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PendingIcon from '@mui/icons-material/Pending';
-
 import EditTaskModal from './EditTaskModal';
+import AddTaskButton from './AddTaskButton';
 
-const TaskList = ({ tasks, onEdit, onToggleStatus, onDelete, onAdd }) => {
+
+const TaskList = ({ tasks, onEdit, onToggleStatus, onDelete, onAdd, onUpdateTask }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState(null);
+  const [formMode, setFormMode] = useState(null);
 
-  const handleOpenModal = (task = null) => {
+  const handleOpenModal = (task, mode) => {
+    setFormMode(mode);
     setTaskToEdit(task);
     setIsModalOpen(true);
-    if (task && onEdit) {
-      onEdit(task);
-    }
+    if (onEdit) onEdit(task);
   };
 
   const handleCloseModal = () => {
@@ -29,16 +29,14 @@ const TaskList = ({ tasks, onEdit, onToggleStatus, onDelete, onAdd }) => {
     setTaskToEdit(null);
   };
 
-  const handleSave = (task) => {
-    if (taskToEdit) {
-      // Editando tarea existente
-      if (onEdit) onEdit(task);
-    } else {
-      // Nueva tarea
-      if (onAdd) onAdd(task);
-    }
+  const handleSave = (updatedTask) => {
+    if (onAdd) onAdd(updatedTask);
     handleCloseModal();
   };
+
+  const handleUpdateTask = (updatedTask) => {
+    if (onUpdateTask) onUpdateTask(updatedTask);
+  }
 
   return (
     <>
@@ -63,15 +61,15 @@ const TaskList = ({ tasks, onEdit, onToggleStatus, onDelete, onAdd }) => {
 
                 <TableCell>
                   <Chip
-                    label={task.status === 'completed' ? 'Completada' : 'Pendiente'}
-                    color={task.status === 'completed' ? 'success' : 'warning'}
+                    label={task.status}
+                    color={task.status === 'completada' ? 'success' : 'warning'}
                     size="small"
                   />
                 </TableCell>
 
                 <TableCell align="right">
                   <Tooltip title="Editar">
-                    <IconButton color="primary" onClick={() => handleOpenModal(task)}>
+                    <IconButton color="primary" onClick={() => handleOpenModal(task, "edit")}>
                       <EditIcon />
                     </IconButton>
                   </Tooltip>
@@ -99,27 +97,16 @@ const TaskList = ({ tasks, onEdit, onToggleStatus, onDelete, onAdd }) => {
         </Table>
       </TableContainer>
 
-      {/* Botón flotante para agregar */}
-      <Fab
-        color="primary"
-        aria-label="add"
-        onClick={() => handleOpenModal()}
-        sx={{
-          position: 'fixed',
-          bottom: 30,
-          right: 30,
-          zIndex: 1000,
-        }}
-      >
-        <AddIcon />
-      </Fab>
+      <AddTaskButton onClick={() => handleOpenModal(tasks, "add")}/>
 
-      {/* Modal para crear o editar */}
+      {/* Modal separado */}
       <EditTaskModal
         open={isModalOpen}
         onClose={handleCloseModal}
         task={taskToEdit}
-        onSave={handleSave}
+        onAdd={handleSave}
+        onUpdateTask={handleUpdateTask}
+        formMode={formMode}
       />
     </>
   );

@@ -4,6 +4,7 @@ import {
   updateTask,
   toggleTaskStatus,
   deleteTask,
+  createTask,
 } from "../services/taskApi";
 
 export function useTasks() {
@@ -15,7 +16,7 @@ export function useTasks() {
     setLoading(true);
     getTasks()
       .then((response) => {
-        setTasks(response.data); // Asegúrate que getTasks() devuelve { data: [...] }
+        setTasks(response.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -26,14 +27,17 @@ export function useTasks() {
 
   const handleEdit = (task) => {
     console.log("Editar:", task);
-    // Aquí podrías agregar lógica para editar la tarea (backend o local)
   };
 
   const handleAddTask = async (newTask) => {
     try {
       const response = await createTask(newTask); // llamada API para crear
       const createdTask = response.data;
-      setTasks((prev) => [...prev, createdTask]);
+      if (response.data) {
+        const copyTasks = [...tasks];
+        copyTasks.push(createdTask);
+        setTasks(copyTasks);
+      }
     } catch (error) {
       console.error("Error creando tarea:", error);
     }
