@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { getTasks, updateTask } from "../services/taskApi";
+import {
+  getTasks,
+  updateTask,
+  toggleTaskStatus,
+  deleteTask,
+} from "../services/taskApi";
 
 export function useTasks() {
   const [tasks, setTasks] = useState([]);
@@ -24,13 +29,38 @@ export function useTasks() {
     // Aquí podrías agregar lógica para editar la tarea (backend o local)
   };
 
-  const handleDelete = (id) => {
-    setTasks((prev) => prev.filter((t) => t.id !== id));
+  const handleAddTask = async (newTask) => {
+    try {
+      const response = await createTask(newTask); // llamada API para crear
+      const createdTask = response.data;
+      setTasks((prev) => [...prev, createdTask]);
+    } catch (error) {
+      console.error("Error creando tarea:", error);
+    }
   };
 
-  const handleToggleStatus = (task) => {
-    const newStatus = task.status === "Pendiente" ? "Completada" : "Pendiente";
-    console.log(newStatus);
+  const handleDelete = async (id) => {
+    const response = await deleteTask(id);
+    const deteledTask = response.data;
+    const index = tasks.findIndex((t) => t.id === deteledTask.id);
+    const taskCopy = [...tasks];
+    if (index !== -1) {
+      taskCopy.splice(index, 1);
+      setTasks(taskCopy);
+    }
+  };
+
+  const handleToggleStatus = async (task) => {
+    const newStatus = task.status === "pendiente" ? "completada" : "pendiente";
+    const response = await toggleTaskStatus(task.id, newStatus);
+
+    const updatedTask = response.data;
+    const index = tasks.findIndex((t) => t.id === updatedTask.id);
+    const taskCopy = [...tasks];
+    if (index !== -1) {
+      taskCopy[index] = updatedTask;
+      setTasks(taskCopy);
+    }
   };
 
   const handleUpdateTask = async (updatedTask) => {
@@ -56,5 +86,6 @@ export function useTasks() {
     handleDelete,
     handleToggleStatus,
     handleUpdateTask,
+    handleAddTask,
   };
 }

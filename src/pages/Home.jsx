@@ -5,7 +5,16 @@ import { Container, Typography } from "@mui/material";
 
 
 const Home = () => {
- const { tasks, loading, error, handleEdit, handleDelete, handleToggleStatus, handleUpdateTask } = useTasks();
+ const { 
+  tasks, 
+  loading, 
+  error,
+   handleEdit, 
+   handleDelete, 
+   handleToggleStatus,
+  handleUpdateTask,
+  handleAddTask
+   } = useTasks();
 
   if (loading) return <p>Cargando tareas...</p>;
   if (error) return <p>Error: {error.message}</p>;

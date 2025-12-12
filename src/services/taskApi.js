@@ -41,9 +41,11 @@ export const updateTask = async (id, taskData) => {
 };
 
 // Cambiar estado
-export const toggleTaskStatus = async (id) => {
-  const res = await fetch(`${API_URL}/tasks/${id}/toggle`, {
+export const toggleTaskStatus = async (id, newStatus) => {
+  const res = await fetch(`${API_URL}/tasks/${id}`, {
     method: "PATCH",
+    headers,
+    body: JSON.stringify({ status: newStatus }),
   });
   return await res.json();
 };

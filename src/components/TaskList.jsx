@@ -1,24 +1,27 @@
 import React, { useState } from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  IconButton, Paper, Chip, Tooltip
+  IconButton, Paper, Chip, Tooltip, Fab
 } from '@mui/material';
 
+import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PendingIcon from '@mui/icons-material/Pending';
 
-import EditTaskModal from './EditTaskModal';  // Importamos el modal separado
+import EditTaskModal from './EditTaskModal';
 
-const TaskList = ({ tasks, onEdit, onToggleStatus, onDelete, onSave, onUpdateTask }) => {
+const TaskList = ({ tasks, onEdit, onToggleStatus, onDelete, onAdd }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState(null);
 
-  const handleOpenModal = (task) => {
+  const handleOpenModal = (task = null) => {
     setTaskToEdit(task);
     setIsModalOpen(true);
-    if (onEdit) onEdit(task);
+    if (task && onEdit) {
+      onEdit(task);
+    }
   };
 
   const handleCloseModal = () => {
@@ -26,14 +29,16 @@ const TaskList = ({ tasks, onEdit, onToggleStatus, onDelete, onSave, onUpdateTas
     setTaskToEdit(null);
   };
 
-  const handleSave = (updatedTask) => {
-    if (onSave) onSave(updatedTask);
+  const handleSave = (task) => {
+    if (taskToEdit) {
+      // Editando tarea existente
+      if (onEdit) onEdit(task);
+    } else {
+      // Nueva tarea
+      if (onAdd) onAdd(task);
+    }
     handleCloseModal();
   };
-
-  const handleUpdateTask = (updatedTask) => {
-    if (onUpdateTask) onUpdateTask(updatedTask);
-  }
 
   return (
     <>
@@ -94,13 +99,27 @@ const TaskList = ({ tasks, onEdit, onToggleStatus, onDelete, onSave, onUpdateTas
         </Table>
       </TableContainer>
 
-      {/* Modal separado */}
+      {/* Botón flotante para agregar */}
+      <Fab
+        color="primary"
+        aria-label="add"
+        onClick={() => handleOpenModal()}
+        sx={{
+          position: 'fixed',
+          bottom: 30,
+          right: 30,
+          zIndex: 1000,
+        }}
+      >
+        <AddIcon />
+      </Fab>
+
+      {/* Modal para crear o editar */}
       <EditTaskModal
         open={isModalOpen}
         onClose={handleCloseModal}
         task={taskToEdit}
         onSave={handleSave}
-        onUpdateTask={handleUpdateTask}
       />
     </>
   );
